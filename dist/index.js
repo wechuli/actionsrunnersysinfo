@@ -44,6 +44,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             console.log("Hello World");
+            console.log(core.getState("isPost"));
         }
         catch (error) {
             if (error instanceof Error)
