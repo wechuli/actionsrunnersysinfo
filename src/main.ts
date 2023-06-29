@@ -4,6 +4,11 @@ import * as core from "@actions/core";
 // check if the action is running in pre or post mode
 
 console.log(typeof core.getState("isPre"));
+console.log(core.getState("isPre"));
+// length of the string
+console.log(core.getState("isPre").length);
+
+console.log(core.saveState("isPre", "true"));
 
 async function setup(): Promise<void> {
   console.log("I am the setup function");
