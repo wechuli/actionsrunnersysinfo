@@ -1,6 +1,8 @@
 import * as core from "@actions/core";
 import { IsPost, IsPre, State } from "./utils/state-helper";
 
+core.getState(typeof State.IsPost);
+
 async function setup(): Promise<void> {
   console.log("I am the setup function");
 }
@@ -15,12 +17,12 @@ async function run(): Promise<void> {
   }
 }
 
-if (IsPre()) {
-  setup();
-  core.saveState("isPre", "false");
-} else if (!IsPre() && !IsPost()) {
-  run();
-  core.saveState("isPost", "true");
-} else {
-  upload();
-}
+// if (IsPre()) {
+//   setup();
+//   core.saveState("isPre", "false");
+// } else if (!IsPre() && !IsPost()) {
+//   run();
+//   core.saveState("isPost", "true");
+// } else {
+//   upload();
+// }
