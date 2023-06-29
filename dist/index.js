@@ -40,8 +40,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
-const state_helper_1 = __nccwpck_require__(246);
+// import { IsPost, IsPre, State } from "./utils/state-helper";
 // check if the action is running in pre or post mode
+console.log(typeof core.getState("isPre"));
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("I am the setup function");
@@ -63,40 +64,17 @@ function run() {
         }
     });
 }
+run();
 // if isnot pre or post
-if (!state_helper_1.IsPost && !state_helper_1.IsPre) {
-    run();
-    core.saveState(state_helper_1.State.IsPost, true);
-}
-else if (!state_helper_1.IsPre) {
-    setup();
-    core.saveState(state_helper_1.State.IsPost, false);
-}
-else if (state_helper_1.IsPost) {
-    upload();
-}
-
-
-/***/ }),
-
-/***/ 246:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.IsPre = exports.IsPost = exports.State = void 0;
-const core_1 = __importDefault(__nccwpck_require__(186));
-var State;
-(function (State) {
-    State["IsPost"] = "isPost";
-    State["IsPre"] = "isPre";
-})(State || (exports.State = State = {}));
-exports.IsPost = !!core_1.default.getState(State.IsPost);
-exports.IsPre = !core_1.default.getState(State.IsPre);
+// if (!IsPost && !IsPre) {
+//   run();
+//   core.saveState(State.IsPost, true);
+// } else if (!IsPre) {
+//   setup();
+//   core.saveState(State.IsPost, false);
+// } else if (IsPost) {
+//   upload();
+// }
 
 
 /***/ }),
