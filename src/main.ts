@@ -18,12 +18,12 @@ async function run(): Promise<void> {
   }
 }
 
-// if (IsPre()) {
-//   setup();
-//   core.saveState("isPre", "false");
-// } else if (!IsPre() && !IsPost()) {
-//   run();
-//   core.saveState("isPost", "true");
-// } else {
-//   upload();
-// }
+if (IsPre()) {
+  setup();
+  core.saveState("isPre", "false");
+} else if (!IsPre() && !IsPost()) {
+  run();
+  core.saveState("isPost", "true");
+} else {
+  upload();
+}
