@@ -41,16 +41,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const state_helper_1 = __nccwpck_require__(246);
-console.log(core.getState(typeof state_helper_1.State.IsPost));
-console.log((0, state_helper_1.IsPost)());
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("I am the setup function");
-    });
-}
-function upload() {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log("I am the upload function");
+        try {
+            console.log("I am the setup function");
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                core.setFailed(error.message);
+            }
+        }
+        finally {
+            core.saveState(state_helper_1.State.IsPre, "false");
+        }
     });
 }
 function run() {
@@ -59,18 +62,25 @@ function run() {
             console.log("I am the main function");
         }
         catch (error) {
-            if (error instanceof Error)
+            if (error instanceof Error) {
                 core.setFailed(error.message);
+            }
         }
+        finally {
+            core.saveState(state_helper_1.State.IsPost, "true");
+        }
+    });
+}
+function upload() {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("I am the upload function");
     });
 }
 if ((0, state_helper_1.IsPre)()) {
     setup();
-    core.saveState("isPre", "false");
 }
 else if (!(0, state_helper_1.IsPre)() && !(0, state_helper_1.IsPost)()) {
     run();
-    core.saveState("isPost", "true");
 }
 else {
     upload();
