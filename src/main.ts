@@ -1,7 +1,8 @@
 import * as core from "@actions/core";
 import { IsPost, IsPre, State } from "./utils/state-helper";
 
-core.getState(typeof State.IsPost);
+console.log(core.getState(typeof State.IsPost));
+console.log(IsPost());
 
 async function setup(): Promise<void> {
   console.log("I am the setup function");
