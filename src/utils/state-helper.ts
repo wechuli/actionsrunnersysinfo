@@ -5,5 +5,18 @@ export enum State {
   IsPre = "isPre",
 }
 
-export const IsPost = !!core.getState(State.IsPost);
-export const IsPre = !core.getState(State.IsPre);
+export function IsPre(): boolean {
+  let isPre = core.getState(State.IsPre);
+  if (isPre.length === 0) {
+    return true;
+  }
+  return false;
+}
+
+export function IsPost(): boolean {
+  let isPost = core.getState(State.IsPost);
+  if (isPost.length === 0) {
+    return false;
+  }
+  return true;
+}
