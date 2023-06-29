@@ -40,13 +40,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
-// import { IsPost, IsPre, State } from "./utils/state-helper";
-// check if the action is running in pre or post mode
-console.log(typeof core.getState("isPre"));
-console.log(core.getState("isPre"));
-// length of the string
-console.log(core.getState("isPre").length);
-console.log(core.saveState("isPre", "true"));
+const state_helper_1 = __nccwpck_require__(246);
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("I am the setup function");
@@ -68,17 +62,53 @@ function run() {
         }
     });
 }
-run();
-// if isnot pre or post
-// if (!IsPost && !IsPre) {
-//   run();
-//   core.saveState(State.IsPost, true);
-// } else if (!IsPre) {
-//   setup();
-//   core.saveState(State.IsPost, false);
-// } else if (IsPost) {
-//   upload();
-// }
+if ((0, state_helper_1.IsPre)()) {
+    setup();
+    core.saveState(state_helper_1.State.IsPre, "false");
+}
+else if (!(0, state_helper_1.IsPre)() && !(0, state_helper_1.IsPost)()) {
+    run();
+    core.saveState(state_helper_1.State.IsPost, "true");
+}
+else {
+    upload();
+}
+
+
+/***/ }),
+
+/***/ 246:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.IsPost = exports.IsPre = exports.State = void 0;
+const core_1 = __importDefault(__nccwpck_require__(186));
+var State;
+(function (State) {
+    State["IsPost"] = "isPost";
+    State["IsPre"] = "isPre";
+})(State || (exports.State = State = {}));
+function IsPre() {
+    let isPre = core_1.default.getState(State.IsPre);
+    if (isPre.length === 0) {
+        return true;
+    }
+    return false;
+}
+exports.IsPre = IsPre;
+function IsPost() {
+    let isPost = core_1.default.getState(State.IsPost);
+    if (isPost.length === 0) {
+        return false;
+    }
+    return true;
+}
+exports.IsPost = IsPost;
 
 
 /***/ }),
