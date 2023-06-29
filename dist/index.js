@@ -64,15 +64,17 @@ function run() {
         }
     });
 }
-// if (IsPre()) {
-//   setup();
-//   core.saveState("isPre", "false");
-// } else if (!IsPre() && !IsPost()) {
-//   run();
-//   core.saveState("isPost", "true");
-// } else {
-//   upload();
-// }
+if ((0, state_helper_1.IsPre)()) {
+    setup();
+    core.saveState("isPre", "false");
+}
+else if (!(0, state_helper_1.IsPre)() && !(0, state_helper_1.IsPost)()) {
+    run();
+    core.saveState("isPost", "true");
+}
+else {
+    upload();
+}
 
 
 /***/ }),
@@ -114,7 +116,7 @@ var State;
     State["IsPre"] = "isPre";
 })(State || (exports.State = State = {}));
 function IsPre() {
-    let isPre = core.getState("isPre");
+    let isPre = core.getState(State.IsPre);
     if (isPre.length === 0) {
         return true;
     }
@@ -122,7 +124,7 @@ function IsPre() {
 }
 exports.IsPre = IsPre;
 function IsPost() {
-    let isPost = core.getState("isPost");
+    let isPost = core.getState(State.IsPost);
     if (isPost.length === 0) {
         return false;
     }
