@@ -17,10 +17,10 @@ async function run(): Promise<void> {
 
 if (IsPre()) {
   setup();
-  core.saveState(State.IsPre, "false");
+  core.saveState("isPre", "false");
 } else if (!IsPre() && !IsPost()) {
   run();
-  core.saveState(State.IsPost, "true");
+  core.saveState("isPost", "true");
 } else {
   upload();
 }

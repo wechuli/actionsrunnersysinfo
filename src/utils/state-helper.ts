@@ -6,7 +6,7 @@ export enum State {
 }
 
 export function IsPre(): boolean {
-  let isPre = core.getState(State.IsPre);
+  let isPre = core.getState("isPre");
   if (isPre.length === 0) {
     return true;
   }
@@ -14,7 +14,7 @@ export function IsPre(): boolean {
 }
 
 export function IsPost(): boolean {
-  let isPost = core.getState(State.IsPost);
+  let isPost = core.getState("isPost");
   if (isPost.length === 0) {
     return false;
   }
