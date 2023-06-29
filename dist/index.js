@@ -41,7 +41,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const state_helper_1 = __nccwpck_require__(246);
-core.getState(typeof state_helper_1.State.IsPost);
+console.log(core.getState(typeof state_helper_1.State.IsPost));
+console.log((0, state_helper_1.IsPost)());
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("I am the setup function");
@@ -81,19 +82,39 @@ function run() {
 
 "use strict";
 
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.IsPost = exports.IsPre = exports.State = void 0;
-const core_1 = __importDefault(__nccwpck_require__(186));
+const core = __importStar(__nccwpck_require__(186));
 var State;
 (function (State) {
     State["IsPost"] = "isPost";
     State["IsPre"] = "isPre";
 })(State || (exports.State = State = {}));
 function IsPre() {
-    let isPre = core_1.default.getState("isPre");
+    let isPre = core.getState("isPre");
     if (isPre.length === 0) {
         return true;
     }
@@ -101,7 +122,7 @@ function IsPre() {
 }
 exports.IsPre = IsPre;
 function IsPost() {
-    let isPost = core_1.default.getState("isPost");
+    let isPost = core.getState("isPost");
     if (isPost.length === 0) {
         return false;
     }
