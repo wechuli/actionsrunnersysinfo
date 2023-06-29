@@ -64,11 +64,11 @@ function run() {
 }
 if ((0, state_helper_1.IsPre)()) {
     setup();
-    core.saveState(state_helper_1.State.IsPre, "false");
+    core.saveState("isPre", "false");
 }
 else if (!(0, state_helper_1.IsPre)() && !(0, state_helper_1.IsPost)()) {
     run();
-    core.saveState(state_helper_1.State.IsPost, "true");
+    core.saveState("isPost", "true");
 }
 else {
     upload();
@@ -94,7 +94,7 @@ var State;
     State["IsPre"] = "isPre";
 })(State || (exports.State = State = {}));
 function IsPre() {
-    let isPre = core_1.default.getState(State.IsPre);
+    let isPre = core_1.default.getState("isPre");
     if (isPre.length === 0) {
         return true;
     }
@@ -102,7 +102,7 @@ function IsPre() {
 }
 exports.IsPre = IsPre;
 function IsPost() {
-    let isPost = core_1.default.getState(State.IsPost);
+    let isPost = core_1.default.getState("isPost");
     if (isPost.length === 0) {
         return false;
     }
