@@ -43,6 +43,10 @@ const core = __importStar(__nccwpck_require__(186));
 // import { IsPost, IsPre, State } from "./utils/state-helper";
 // check if the action is running in pre or post mode
 console.log(typeof core.getState("isPre"));
+console.log(core.getState("isPre"));
+// length of the string
+console.log(core.getState("isPre").length);
+console.log(core.saveState("isPre", "true"));
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("I am the setup function");
