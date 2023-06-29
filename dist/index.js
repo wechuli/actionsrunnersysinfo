@@ -41,6 +41,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const state_helper_1 = __nccwpck_require__(246);
+core.getState(typeof state_helper_1.State.IsPost);
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("I am the setup function");
@@ -62,17 +63,15 @@ function run() {
         }
     });
 }
-if ((0, state_helper_1.IsPre)()) {
-    setup();
-    core.saveState("isPre", "false");
-}
-else if (!(0, state_helper_1.IsPre)() && !(0, state_helper_1.IsPost)()) {
-    run();
-    core.saveState("isPost", "true");
-}
-else {
-    upload();
-}
+// if (IsPre()) {
+//   setup();
+//   core.saveState("isPre", "false");
+// } else if (!IsPre() && !IsPost()) {
+//   run();
+//   core.saveState("isPost", "true");
+// } else {
+//   upload();
+// }
 
 
 /***/ }),
