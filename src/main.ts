@@ -1,9 +1,11 @@
 import * as core from "@actions/core";
 import { IsPost, IsPre, State } from "./utils/state-helper";
+import { createJSONfile } from "./utils/fileOps";
 
 async function setup(): Promise<void> {
   try {
     console.log("I am the setup function");
+    createJSONfile();
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);
