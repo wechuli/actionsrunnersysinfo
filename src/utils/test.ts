@@ -1,26 +1,18 @@
 import si from "systeminformation";
 
-// si.cpu().then((data) => console.log(data));
+// si.cpu().then((data) => console.log(`Cpu data:${JSON.stringify(data)}`));
 
-// // memory utilization
-// si.mem().then((data) => console.log(data));
+// memory utilization
+si.mem().then((data) => console.log(`Memory data:${JSON.stringify(data)}`));
 
-// // disk utilization
+// disk utilization
 
-// si.diskLayout().then((data) => console.log(data));
+// si.diskLayout().then((data) =>
+//   console.log(`Disk data:${JSON.stringify(data)}`)
+// );
 
 // // check cpu usage
 
-// si.currentLoad().then((data) => console.log(data));
-
-export enum State {
-  IsPost = "isPost",
-  IsPre = "isPre",
-}
-
-console.log(State.IsPost);
-console.log(State.IsPre);
-
-// types
-console.log(typeof State.IsPost);
-console.log(typeof State.IsPre);
+// si.currentLoad().then((data) =>
+//   console.log(`Cpu usage:${JSON.stringify(data)}`)
+// );
