@@ -41,10 +41,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const state_helper_1 = __nccwpck_require__(246);
+const fileOps_1 = __nccwpck_require__(958);
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             console.log("I am the setup function");
+            (0, fileOps_1.createJSONfile)();
         }
         catch (error) {
             if (error instanceof Error) {
@@ -85,6 +87,30 @@ else if (!(0, state_helper_1.IsPre)() && !(0, state_helper_1.IsPost)()) {
 else {
     upload();
 }
+
+
+/***/ }),
+
+/***/ 958:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createJSONfile = void 0;
+const fs_1 = __importDefault(__nccwpck_require__(147));
+// create empty JSON file
+function createJSONfile() {
+    let fileLocation = process.env["RUNNER_TEMP"];
+    if (fileLocation) {
+        fileLocation += "\\sysinfo.json";
+        fs_1.default.writeFileSync(fileLocation, "{}");
+    }
+}
+exports.createJSONfile = createJSONfile;
 
 
 /***/ }),
