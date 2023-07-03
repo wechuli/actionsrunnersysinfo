@@ -10,3 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: wechuli/actionsrunnersysinfo@main
+      - run: ls $RUNNER_TEMP
