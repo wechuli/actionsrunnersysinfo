@@ -1,12 +1,14 @@
 import fs from "fs";
 import path from "path";
 
-// create empty JSON file
-export function createJSONfile(): void {
-  let fileLocation = process.env["RUNNER_TEMP"];
-  console.log(fileLocation);
-  if (fileLocation) {
-    fileLocation = path.join(fileLocation, "sysinfo.json");
-    fs.writeFileSync(fileLocation, "{}");
-  }
+function getTempDir(): string {
+  let tempDir = process.env["RUNNER_TEMP"] || process.cwd();
+  return tempDir;
+}
+
+// create empty JSON file and return the location
+export function createJSONfile(tempDir = getTempDir()): string {
+  let fileLocation = path.join(tempDir, "sysinfo.json");
+  fs.writeFileSync(fileLocation, "{}");
+  return fileLocation;
 }
