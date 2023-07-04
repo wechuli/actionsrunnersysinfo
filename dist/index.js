@@ -103,14 +103,15 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createJSONfile = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(147));
 const path_1 = __importDefault(__nccwpck_require__(17));
-// create empty JSON file
-function createJSONfile() {
-    let fileLocation = process.env["RUNNER_TEMP"];
-    console.log(fileLocation);
-    if (fileLocation) {
-        fileLocation = path_1.default.join(fileLocation, "sysinfo.json");
-        fs_1.default.writeFileSync(fileLocation, "{}");
-    }
+function getTempDir() {
+    let tempDir = process.env["RUNNER_TEMP"] || process.cwd();
+    return tempDir;
+}
+// create empty JSON file and return the location
+function createJSONfile(tempDir = getTempDir()) {
+    let fileLocation = path_1.default.join(tempDir, "sysinfo.json");
+    fs_1.default.writeFileSync(fileLocation, "{}");
+    return fileLocation;
 }
 exports.createJSONfile = createJSONfile;
 
