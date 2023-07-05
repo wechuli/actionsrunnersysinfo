@@ -20,3 +20,11 @@ export function IsPost(): boolean {
   }
   return true;
 }
+
+export function getFileLocation(): string {
+  let fileLocation = core.getState("fileLocation");
+  if (fileLocation.length === 0) {
+    return "";
+  }
+  return fileLocation;
+}
