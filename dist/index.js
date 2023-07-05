@@ -127,7 +127,12 @@ function setup() {
             core.saveState("fileLocation", fileLocation);
             // get Os info and write to JSON file
             let osInfo = yield (0, sysinfo_1.getOSInfo)();
-            yield fs_1.default.promises.writeFile(fileLocation, osInfo);
+            let hardWareInfo = yield (0, sysinfo_1.getHardwareInfo)();
+            let currentCollection = {
+                osInfo,
+                hardWareInfo,
+            };
+            yield fs_1.default.promises.writeFile(fileLocation, JSON.stringify(currentCollection));
         }
         catch (error) {
             if (error instanceof Error) {
