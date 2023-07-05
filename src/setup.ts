@@ -19,7 +19,13 @@ export async function setup(): Promise<void> {
 
     // get Os info and write to JSON file
     let osInfo = await getOSInfo();
-    await fs.promises.writeFile(fileLocation, osInfo);
+    let hardWareInfo = await getHardwareInfo();
+
+    let currentCollection = {
+      osInfo,
+      hardWareInfo,
+    };
+    await fs.promises.writeFile(fileLocation, JSON.stringify(currentCollection));
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);
