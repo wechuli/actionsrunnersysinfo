@@ -114,18 +114,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setup = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
+const core = __importStar(__nccwpck_require__(2186));
 const sysinfo_1 = __nccwpck_require__(7949);
 const fileOps_1 = __nccwpck_require__(8958);
-const core = __importStar(__nccwpck_require__(2186));
+const state_helper_1 = __nccwpck_require__(2246);
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
-        // create empty JSON file
-        let fileLocation = (0, fileOps_1.createJSONfile)();
-        // save file location to state
-        core.saveState("fileLocation", fileLocation);
-        // get Os info and write to JSON file
-        let osInfo = yield (0, sysinfo_1.getOSInfo)();
-        yield fs_1.default.promises.writeFile(fileLocation, osInfo);
+        try {
+            // create empty JSON file
+            let fileLocation = (0, fileOps_1.createJSONfile)();
+            // save file location to state
+            core.saveState("fileLocation", fileLocation);
+            // get Os info and write to JSON file
+            let osInfo = yield (0, sysinfo_1.getOSInfo)();
+            yield fs_1.default.promises.writeFile(fileLocation, osInfo);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                core.setFailed(error.message);
+            }
+        }
+        finally {
+            core.saveState(state_helper_1.State.IsPre, "false");
+        }
     });
 }
 exports.setup = setup;
