@@ -167,7 +167,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getCurrentLoad = exports.getMemoryInfo = exports.getOSInfo = exports.getHardwareInfo = void 0;
+exports.getCurrentLoad = exports.getMemoryInfo = exports.getDiskInfo = exports.getCPUInfo = exports.getOSInfo = exports.getHardwareInfo = void 0;
 const systeminformation_1 = __importDefault(__nccwpck_require__(9284));
 // hardware info
 function getHardwareInfo() {
@@ -185,6 +185,22 @@ function getOSInfo() {
     });
 }
 exports.getOSInfo = getOSInfo;
+//cpu info
+function getCPUInfo() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let data = yield systeminformation_1.default.cpu();
+        return JSON.stringify(data);
+    });
+}
+exports.getCPUInfo = getCPUInfo;
+// disk utilization
+function getDiskInfo() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let data = yield systeminformation_1.default.diskLayout();
+        return JSON.stringify(data);
+    });
+}
+exports.getDiskInfo = getDiskInfo;
 // memory info
 function getMemoryInfo() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -197,7 +213,12 @@ exports.getMemoryInfo = getMemoryInfo;
 function getCurrentLoad() {
     return __awaiter(this, void 0, void 0, function* () {
         let data = yield systeminformation_1.default.currentLoad();
-        return JSON.stringify(data);
+        let importantLoadInfo = {
+            currentLoad: data.currentLoad,
+            currentLoadUser: data.currentLoadUser,
+            currentLoadSystem: data.currentLoadSystem,
+        };
+        return JSON.stringify(importantLoadInfo);
     });
 }
 exports.getCurrentLoad = getCurrentLoad;
