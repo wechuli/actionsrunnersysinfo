@@ -12,6 +12,18 @@ export async function getOSInfo(): Promise<string> {
   return JSON.stringify(data);
 }
 
+//cpu info
+export async function getCPUInfo(): Promise<string> {
+  let data = await si.cpu();
+  return JSON.stringify(data);
+}
+
+// disk utilization
+export async function getDiskInfo(): Promise<string> {
+  let data = await si.diskLayout();
+  return JSON.stringify(data);
+}
+
 // memory info
 export async function getMemoryInfo(): Promise<string> {
   let data = await si.mem();
@@ -21,5 +33,10 @@ export async function getMemoryInfo(): Promise<string> {
 // current load
 export async function getCurrentLoad(): Promise<string> {
   let data = await si.currentLoad();
-  return JSON.stringify(data);
+  let importantLoadInfo = {
+    currentLoad: data.currentLoad,
+    currentLoadUser: data.currentLoadUser,
+    currentLoadSystem: data.currentLoadSystem,
+  };
+  return JSON.stringify(importantLoadInfo);
 }

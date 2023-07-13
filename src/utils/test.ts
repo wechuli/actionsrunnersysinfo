@@ -7,9 +7,9 @@ import si from "systeminformation";
 
 // disk utilization
 
-// si.diskLayout().then((data) =>
-//   console.log(`Disk data:${JSON.stringify(data)}`)
-// );
+si.diskLayout().then((data) =>
+  console.log(`Disk data:${JSON.stringify(data)}`)
+);
 
 // // check cpu usage
 
@@ -17,9 +17,9 @@ import si from "systeminformation";
 //   console.log(`Cpu usage:${JSON.stringify(data)}`)
 // );
 
-// system information
-si.system().then((data) => console.log(`System data:${JSON.stringify(data)}`));
+//system information
+// si.system().then((data) => console.log(`System data:${JSON.stringify(data)}`));
 
 // os information
 
-si.osInfo().then((data) => console.log(`OS data:${JSON.stringify(data)}`));
+// si.osInfo().then((data) => console.log(`OS data:${JSON.stringify(data)}`));
