@@ -6,6 +6,12 @@ export async function getHardwareInfo(): Promise<string> {
   return JSON.stringify(data);
 }
 
+// network info
+export async function getNetworkInfo(): Promise<string> {
+  let data = await si.networkInterfaces();
+  return JSON.stringify(data);
+}
+
 // os info
 export async function getOSInfo(): Promise<string> {
   let data = await si.osInfo();
@@ -40,3 +46,11 @@ export async function getCurrentLoad(): Promise<string> {
   };
   return JSON.stringify(importantLoadInfo);
 }
+
+
+// network stats
+export async function getNetworkStats(): Promise<string> {
+  let data = await si.networkStats();
+  return JSON.stringify(data);
+}
+
