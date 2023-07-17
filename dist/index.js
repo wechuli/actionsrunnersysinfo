@@ -128,9 +128,12 @@ function setup() {
             // get Os info and write to JSON file
             let osInfo = yield (0, sysinfo_1.getOSInfo)();
             let hardWareInfo = yield (0, sysinfo_1.getHardwareInfo)();
+            let networkInfo = yield (0, sysinfo_1.getNetworkInfo)();
             let currentCollection = {
                 osInfo,
                 hardWareInfo,
+                networkInfo,
+                timeSeries: [],
             };
             yield fs_1.default.promises.writeFile(fileLocation, JSON.stringify(currentCollection));
         }
@@ -167,7 +170,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getCurrentLoad = exports.getMemoryInfo = exports.getDiskInfo = exports.getCPUInfo = exports.getOSInfo = exports.getHardwareInfo = void 0;
+exports.getNetworkStats = exports.getCurrentLoad = exports.getMemoryInfo = exports.getDiskInfo = exports.getCPUInfo = exports.getOSInfo = exports.getNetworkInfo = exports.getHardwareInfo = void 0;
 const systeminformation_1 = __importDefault(__nccwpck_require__(9284));
 // hardware info
 function getHardwareInfo() {
@@ -177,6 +180,14 @@ function getHardwareInfo() {
     });
 }
 exports.getHardwareInfo = getHardwareInfo;
+// network info
+function getNetworkInfo() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let data = yield systeminformation_1.default.networkInterfaces();
+        return JSON.stringify(data);
+    });
+}
+exports.getNetworkInfo = getNetworkInfo;
 // os info
 function getOSInfo() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -222,6 +233,14 @@ function getCurrentLoad() {
     });
 }
 exports.getCurrentLoad = getCurrentLoad;
+// network stats
+function getNetworkStats() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let data = yield systeminformation_1.default.networkStats();
+        return JSON.stringify(data);
+    });
+}
+exports.getNetworkStats = getNetworkStats;
 
 
 /***/ }),
