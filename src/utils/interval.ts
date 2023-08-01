@@ -19,6 +19,10 @@ async function statsCollector(fileLocation: string): Promise<void> {
     // read file and append new data
     let fileContents = fs.readFileSync(fileLocation, "utf8");
     let data = JSON.parse(fileContents);
+    data[currentTimeInUTC] = currentCollection;
+
+    // write file
+    fs.writeFileSync(fileLocation, JSON.stringify(data));
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);

@@ -7,13 +7,15 @@ import {
   getMemoryInfo,
   getNetworkInfo,
 } from "./sysinfo/sysinfo";
-import { createJSONfile } from "./utils/fileOps";
+import { createJSONfile,getFileLocation } from "./utils/fileOps";
 import { State } from "./utils/state-helper";
+
 
 export async function setup(): Promise<void> {
   try {
     // create empty JSON file
-    let fileLocation = createJSONfile();
+    let fileLocation = getFileLocation();
+    createJSONfile(fileLocation);
 
     // save file location to state
     core.saveState("fileLocation", fileLocation);

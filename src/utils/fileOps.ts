@@ -7,9 +7,13 @@ function getTempDir(): string {
   return tempDir;
 }
 
+export function getFileLocation(): string {
+  let fileLocation = path.join(getTempDir(), Constants.FILE_NAME);
+  return fileLocation;
+}
+
 // create empty JSON file and return the location
-export function createJSONfile(tempDir = getTempDir()): string {
-  let fileLocation = path.join(tempDir, Constants.FILE_NAME);
+export function createJSONfile(fileLocation=getFileLocation()): string {
   fs.writeFileSync(fileLocation, "{}");
   return fileLocation;
 }
