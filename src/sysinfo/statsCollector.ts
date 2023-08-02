@@ -1,17 +1,20 @@
-import { getCurrentLoad, getMemoryInfo } from "../sysinfo/sysinfo";
+import { Systeminformation } from "systeminformation";
+import {
+  getCurrentLoad,
+  getMemoryInfo,
+  IImportantLoadInfo,
+} from "../sysinfo/sysinfo";
 
-export async function statsCollector(): Promise<object> {
-  let currentTimeInUTC = new Date().toUTCString();
+interface SystemStats {
+  currentLoad: IImportantLoadInfo;
+  memoryInfo: Systeminformation.MemData;
+}
+
+export async function systemStatsCollector(): Promise<SystemStats> {
   let currentCollection = {
     currentLoad: await getCurrentLoad(),
     memoryInfo: await getMemoryInfo(),
   };
 
-  return {
-    [currentTimeInUTC]: currentCollection,
-  };
+  return currentCollection;
 }
-
-statsCollector()
-  .then((data) => console.log(data))
-  .catch((err) => console.log(err));

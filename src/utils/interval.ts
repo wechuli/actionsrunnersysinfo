@@ -1,25 +1,18 @@
 import fs from "fs";
 import * as core from "@actions/core";
-import { getCurrentLoad, getMemoryInfo } from "../sysinfo/sysinfo";
+import { systemStatsCollector } from "../sysinfo/statsCollector";
 
-interface fileFormat {
-  osInfo: string;
-  hardWareInfo: string;
-}
-async function interValCollector() {}
-
-async function statsCollector(fileLocation: string): Promise<void> {
+export async function statsCollectorAndWriter(
+  fileLocation: string
+): Promise<void> {
   try {
-    let currentTimeInUTC = new Date().toUTCString();
-    let currentCollection = {
-      currentLoad: await getCurrentLoad(),
-      memoryInfo: await getMemoryInfo(),
-    };
+    let systemsStats = await systemStatsCollector();
+    let currentTimestamp = new Date().toUTCString();
 
     // read file and append new data
     let fileContents = fs.readFileSync(fileLocation, "utf8");
     let data = JSON.parse(fileContents);
-    data[currentTimeInUTC] = currentCollection;
+    data.timeSeries.push({ currentTimestamp, systemsStats });
 
     // write file
     fs.writeFileSync(fileLocation, JSON.stringify(data));

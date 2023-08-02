@@ -7,9 +7,9 @@ import {
   getMemoryInfo,
   getNetworkInfo,
 } from "./sysinfo/sysinfo";
-import { createJSONfile,getFileLocation } from "./utils/fileOps";
+import { statsCollectorAndWriter } from "./utils/interval";
+import { createJSONfile, getFileLocation } from "./utils/fileOps";
 import { State } from "./utils/state-helper";
-
 
 export async function setup(): Promise<void> {
   try {
@@ -35,6 +35,9 @@ export async function setup(): Promise<void> {
       fileLocation,
       JSON.stringify(currentCollection)
     );
+    const interval = setInterval(async () => {
+      await statsCollectorAndWriter(fileLocation);
+    }, 1000 * 60);
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);
