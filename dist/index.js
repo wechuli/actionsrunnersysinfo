@@ -122,7 +122,8 @@ function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // create empty JSON file
-            let fileLocation = (0, fileOps_1.createJSONfile)();
+            let fileLocation = (0, fileOps_1.getFileLocation)();
+            (0, fileOps_1.createJSONfile)(fileLocation);
             // save file location to state
             core.saveState("fileLocation", fileLocation);
             // get Os info and write to JSON file
@@ -294,7 +295,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createJSONfile = void 0;
+exports.createJSONfile = exports.getFileLocation = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const constants_1 = __nccwpck_require__(2842);
@@ -302,9 +303,13 @@ function getTempDir() {
     let tempDir = process.env[constants_1.Constants.RUNNER_TEMP] || process.cwd();
     return tempDir;
 }
+function getFileLocation() {
+    let fileLocation = path_1.default.join(getTempDir(), constants_1.Constants.FILE_NAME);
+    return fileLocation;
+}
+exports.getFileLocation = getFileLocation;
 // create empty JSON file and return the location
-function createJSONfile(tempDir = getTempDir()) {
-    let fileLocation = path_1.default.join(tempDir, constants_1.Constants.FILE_NAME);
+function createJSONfile(fileLocation = getFileLocation()) {
     fs_1.default.writeFileSync(fileLocation, "{}");
     return fileLocation;
 }
