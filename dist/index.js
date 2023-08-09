@@ -2848,6 +2848,7 @@ function parseBluetoothType(str) {
 
   if (str.indexOf('keyboard') >= 0) { result = 'Keyboard'; }
   if (str.indexOf('mouse') >= 0) { result = 'Mouse'; }
+  if (str.indexOf('trackpad') >= 0) { result = 'Trackpad'; }
   if (str.indexOf('speaker') >= 0) { result = 'Speaker'; }
   if (str.indexOf('headset') >= 0) { result = 'Headset'; }
   if (str.indexOf('phone') >= 0) { result = 'Phone'; }
@@ -2869,6 +2870,7 @@ function parseBluetoothManufacturer(str) {
   if (str.indexOf('imac') >= 0) { result = 'Apple'; }
   if (str.indexOf('iphone') >= 0) { result = 'Apple'; }
   if (str.indexOf('magic mouse') >= 0) { result = 'Apple'; }
+  if (str.indexOf('magic track') >= 0) { result = 'Apple'; }
   if (str.indexOf('macbook') >= 0) { result = 'Apple'; }
   // to be continued ...
 
@@ -3472,20 +3474,24 @@ const AMDBaseFrequencies = {
 
   // Epyc (Milan)
 
+  '7773X': '2.2',
   '7763': '2.45',
   '7713': '2.0',
   '7713P': '2.0',
   '7663': '2.0',
   '7643': '2.3',
+  '7573X': '2.8',
   '75F3': '2.95',
   '7543': '2.8',
   '7543P': '2.8',
   '7513': '2.6',
+  '7473X': '2.8',
   '7453': '2.75',
   '74F3': '3.2',
   '7443': '2.85',
   '7443P': '2.85',
   '7413': '2.65',
+  '7373X': '3.05',
   '73F3': '3.5',
   '7343': '3.2',
   '7313': '3.0',
@@ -3496,9 +3502,34 @@ const AMDBaseFrequencies = {
   '5600X': '3.7',
   '5800X': '3.8',
   '5900X': '3.7',
-  '5950X': '3.4'
-};
+  '5950X': '3.4',
 
+  // ZEN4
+  '9754': '2.25',
+  '9754S': '2.25',
+  '9734': '2.2',
+  '9684X': '2.55',
+  '9384X': '3.1',
+  '9184X': '3.55',
+  '9654P': '2.4',
+  '9654': '2.4',
+  '9634': '2.25',
+  '9554P': '3.1',
+  '9554': '3.1',
+  '9534': '2.45',
+  '9474F': '3.6',
+  '9454P': '2.75',
+  '9454': '2.75',
+  '9374F': '3.85',
+  '9354P': '3.25',
+  '9354': '3.25',
+  '9334': '2.7',
+  '9274F': '4.05',
+  '9254': '2.9',
+  '9224': '2.5',
+  '9174F': '4.1',
+  '9124': '3.0'
+};
 
 const socketTypes = {
   1: 'Other',
@@ -3564,6 +3595,15 @@ const socketTypes = {
   61: 'LGA4189',
   62: 'LGA1200',
   63: 'LGA4677',
+  64: 'LGA1700',
+  65: 'BGA1744',
+  66: 'BGA1781',
+  67: 'BGA1211',
+  68: 'BGA2422',
+  69: 'LGA1211',
+  70: 'LGA2422',
+  71: 'LGA5773',
+  72: 'BGA5773',
 };
 
 const socketTypesByName = {
@@ -3884,12 +3924,6 @@ function getCpu() {
               }
               result = cpuBrandManufacturer(result);
               result.revision = util.getValue(lines, 'revision', ':');
-              result.cache.l1d = 0;
-              result.cache.l1i = 0;
-              result.cache.l2 = util.getValue(lines, 'l2cachesize', ':');
-              result.cache.l3 = util.getValue(lines, 'l3cachesize', ':');
-              if (result.cache.l2) { result.cache.l2 = parseInt(result.cache.l2, 10) * 1024; }
-              if (result.cache.l3) { result.cache.l3 = parseInt(result.cache.l3, 10) * 1024; }
               result.vendor = util.getValue(lines, 'manufacturer', ':');
               result.speedMax = Math.round(parseFloat(util.getValue(lines, 'maxclockspeed', ':').replace(/,/g, '.')) / 10.0) / 100;
               if (result.speed === 0 && (result.brand.indexOf('AMD') > -1 || result.brand.toLowerCase().indexOf('ryzen') > -1)) {
@@ -3936,26 +3970,7 @@ function getCpu() {
                 result.cores = result.cores * countProcessors;
                 result.physicalCores = result.physicalCores * countProcessors;
               }
-              const parts = data[1].split(/\n\s*\n/);
-              parts.forEach(function (part) {
-                lines = part.split('\r\n');
-                const cacheType = util.getValue(lines, 'CacheType');
-                const level = util.getValue(lines, 'Level');
-                const installedSize = util.getValue(lines, 'InstalledSize');
-                // L1 Instructions
-                if (level === '3' && cacheType === '3') {
-                  result.cache.l1i = parseInt(installedSize, 10);
-                }
-                // L1 Data
-                if (level === '3' && cacheType === '4') {
-                  result.cache.l1d = parseInt(installedSize, 10);
-                }
-                // L1 all
-                if (level === '3' && cacheType === '5' && !result.cache.l1i && !result.cache.l1d) {
-                  result.cache.l1i = parseInt(installedSize, 10) / 2;
-                  result.cache.l1d = parseInt(installedSize, 10) / 2;
-                }
-              });
+              result.cache = parseWinCache(data[0], data[1]);
               const hyperv = data[2] ? data[2].toString().toLowerCase() : '';
               result.virtualization = hyperv.indexOf('true') !== -1;
 
@@ -4505,42 +4520,17 @@ function cpuCache(callback) {
       }
       if (_windows) {
         try {
-          util.powerShell('Get-CimInstance Win32_processor | select L2CacheSize, L3CacheSize | fl').then((stdout, error) => {
-            if (!error) {
-              let lines = stdout.split('\r\n');
-              result.l1d = 0;
-              result.l1i = 0;
-              result.l2 = util.getValue(lines, 'l2cachesize', ':');
-              result.l3 = util.getValue(lines, 'l3cachesize', ':');
-              if (result.l2) { result.l2 = parseInt(result.l2, 10) * 1024; }
-              if (result.l3) { result.l3 = parseInt(result.l3, 10) * 1024; }
-            }
-            util.powerShell('Get-CimInstance Win32_CacheMemory | select CacheType,InstalledSize,Level | fl').then((stdout, error) => {
-              if (!error) {
-                const parts = stdout.split(/\n\s*\n/);
-                parts.forEach(function (part) {
-                  const lines = part.split('\r\n');
-                  const cacheType = util.getValue(lines, 'CacheType');
-                  const level = util.getValue(lines, 'Level');
-                  const installedSize = util.getValue(lines, 'InstalledSize');
-                  // L1 Instructions
-                  if (level === '3' && cacheType === '3') {
-                    result.l1i = parseInt(installedSize, 10);
-                  }
-                  // L1 Data
-                  if (level === '3' && cacheType === '4') {
-                    result.l1d = parseInt(installedSize, 10);
-                  }
-                  // L1 all
-                  if (level === '3' && cacheType === '5' && !result.l1i && !result.l1d) {
-                    result.l1i = parseInt(installedSize, 10) / 2;
-                    result.l1d = parseInt(installedSize, 10) / 2;
-                  }
-                });
-              }
-              if (callback) { callback(result); }
-              resolve(result);
-            });
+          const workload = [];
+          workload.push(util.powerShell('Get-CimInstance Win32_processor | select L2CacheSize, L3CacheSize | fl'));
+          workload.push(util.powerShell('Get-CimInstance Win32_CacheMemory | select CacheType,InstalledSize,Level | fl'));
+
+          Promise.all(
+            workload
+          ).then((data) => {
+            result = parseWinCache(data[0], data[1]);
+
+            if (callback) { callback(result); }
+            resolve(result);
           });
         } catch (e) {
           if (callback) { callback(result); }
@@ -4549,6 +4539,61 @@ function cpuCache(callback) {
       }
     });
   });
+}
+
+function parseWinCache(linesProc, linesCache) {
+  let result = {
+    l1d: null,
+    l1i: null,
+    l2: null,
+    l3: null,
+  };
+
+  // Win32_processor
+  let lines = linesProc.split('\r\n');
+  result.l1d = 0;
+  result.l1i = 0;
+  result.l2 = util.getValue(lines, 'l2cachesize', ':');
+  result.l3 = util.getValue(lines, 'l3cachesize', ':');
+  if (result.l2) { result.l2 = parseInt(result.l2, 10) * 1024; } else { result.l2 = 0; }
+  if (result.l3) { result.l3 = parseInt(result.l3, 10) * 1024; } else { result.l3 = 0; }
+
+  // Win32_CacheMemory
+  const parts = linesCache.split(/\n\s*\n/);
+  let l1i = 0;
+  let l1d = 0;
+  let l2 = 0;
+  parts.forEach(function (part) {
+    const lines = part.split('\r\n');
+    const cacheType = util.getValue(lines, 'CacheType');
+    const level = util.getValue(lines, 'Level');
+    const installedSize = util.getValue(lines, 'InstalledSize');
+    // L1 Instructions
+    if (level === '3' && cacheType === '3') {
+      result.l1i = result.l1i + parseInt(installedSize, 10) * 1024;
+    }
+    // L1 Data
+    if (level === '3' && cacheType === '4') {
+      result.l1d = result.l1d + parseInt(installedSize, 10) * 1024;
+    }
+    // L1 all
+    if (level === '3' && cacheType === '5') {
+      l1i = parseInt(installedSize, 10) / 2;
+      l1d = parseInt(installedSize, 10) / 2;
+    }
+    // L2
+    if (level === '4' && cacheType === '5') {
+      l2 = l2 + parseInt(installedSize, 10) * 1024;
+    }
+  });
+  if (!result.l1i && !result.l1d) {
+    result.l1i = l1i;
+    result.l1d = l1d;
+  }
+  if (l2) {
+    result.l2 = l2;
+  }
+  return result;
 }
 
 exports.cpuCache = cpuCache;
@@ -6009,7 +6054,10 @@ function fsSize(drive, callback) {
             execSync('cat /proc/mounts 2>/dev/null').toString().split('\n').filter(line => {
               return line.startsWith('/');
             }).forEach((line) => {
-              osMounts[line.split(' ')[0]] = line.toLowerCase().indexOf('rw') >= 0;
+              osMounts[line.split(' ')[0]] = osMounts[line.split(' ')[0]] ?? false;
+              if (line.toLowerCase().indexOf('/snap/') === -1) {
+                osMounts[line.split(' ')[0]] = ((line.toLowerCase().indexOf('rw,') >= 0 || line.toLowerCase().indexOf(' rw ') >= 0));
+              }
             });
           } catch (e) {
             util.noop();
@@ -6058,7 +6106,7 @@ function fsSize(drive, callback) {
       }
       if (_windows) {
         try {
-          const cmd = `Get-WmiObject Win32_logicaldisk | select Caption,FileSystem,FreeSpace,Size ${drive ? '| where -property Caption -eq ' + drive : ''} | fl`;
+          const cmd = `Get-WmiObject Win32_logicaldisk | select Access,Caption,FileSystem,FreeSpace,Size ${drive ? '| where -property Caption -eq ' + drive : ''} | fl`;
           util.powerShell(cmd).then((stdout, error) => {
             if (!error) {
               let devices = stdout.toString().split(/\n\s*\n/);
@@ -11778,7 +11826,8 @@ function getFQDN() {
         util.noop();
       }
     }
-  } if (_freebsd || _openbsd || _netbsd) {
+  }
+  if (_freebsd || _openbsd || _netbsd) {
     try {
       const stdout = execSync('hostname 2>/dev/null');
       fqdn = stdout.toString().split(os.EOL)[0];
@@ -11869,7 +11918,7 @@ function osInfo(callback) {
         exec('sysctl kern.ostype kern.osrelease kern.osrevision kern.hostuuid machdep.bootmethod kern.geom.confxml', function (error, stdout) {
           let lines = stdout.toString().split('\n');
           const distro = util.getValue(lines, 'kern.ostype');
-          const logofile = util.getValue(lines, 'kern.ostype');
+          const logofile = util.getLogoFile(distro);
           const release = util.getValue(lines, 'kern.osrelease').split('-')[0];
           const serial = util.getValue(lines, 'kern.uuid');
           const bootmethod = util.getValue(lines, 'machdep.bootmethod');
@@ -11912,6 +11961,7 @@ function osInfo(callback) {
           result.codename = (result.release.startsWith('11.') ? 'macOS Big Sur' : result.codename);
           result.codename = (result.release.startsWith('12.') ? 'macOS Monterey' : result.codename);
           result.codename = (result.release.startsWith('13.') ? 'macOS Ventura' : result.codename);
+          result.codename = (result.release.startsWith('14.') ? 'macOS Sonoma' : result.codename);
           result.uefi = true;
           result.codepage = util.getCodepage();
           if (callback) {
@@ -18884,7 +18934,7 @@ module.exports = require("util");
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"i8":"5.18.6"};
+module.exports = {"i8":"5.18.12"};
 
 /***/ })
 
