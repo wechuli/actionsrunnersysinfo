@@ -9,6 +9,7 @@ import {
 } from "./sysinfo/sysinfo";
 import { statsCollectorAndWriter } from "./utils/interval";
 import { createJSONfile, getFileLocation } from "./utils/fileOps";
+import { spawnBackgroundProcess } from "./utils/backgroundstarter";
 import { State } from "./utils/state-helper";
 
 export async function setup(): Promise<void> {
@@ -35,9 +36,10 @@ export async function setup(): Promise<void> {
       fileLocation,
       JSON.stringify(currentCollection)
     );
-    const interval = setInterval(async () => {
-      await statsCollectorAndWriter(fileLocation);
-    }, 1000 * 60);
+    const backgroundPID = await spawnBackgroundProcess(fileLocation);
+
+    // save background PID to state
+    core.saveState("backgroundPID", backgroundPID.toString());
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);
