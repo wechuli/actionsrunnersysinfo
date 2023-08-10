@@ -116,8 +116,8 @@ exports.setup = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const core = __importStar(__nccwpck_require__(2186));
 const sysinfo_1 = __nccwpck_require__(7949);
-const interval_1 = __nccwpck_require__(6343);
 const fileOps_1 = __nccwpck_require__(8958);
+const backgroundstarter_1 = __nccwpck_require__(1131);
 const state_helper_1 = __nccwpck_require__(2246);
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -138,9 +138,9 @@ function setup() {
                 timeSeries: [],
             };
             yield fs_1.default.promises.writeFile(fileLocation, JSON.stringify(currentCollection));
-            const interval = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                yield (0, interval_1.statsCollectorAndWriter)(fileLocation);
-            }), 1000 * 60);
+            const backgroundPID = yield (0, backgroundstarter_1.spawnBackgroundProcess)(fileLocation);
+            // save background PID to state
+            core.saveState("backgroundPID", backgroundPID.toString());
         }
         catch (error) {
             if (error instanceof Error) {
@@ -153,37 +153,6 @@ function setup() {
     });
 }
 exports.setup = setup;
-
-
-/***/ }),
-
-/***/ 819:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.systemStatsCollector = void 0;
-const sysinfo_1 = __nccwpck_require__(7949);
-function systemStatsCollector() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let currentCollection = {
-            currentLoad: yield (0, sysinfo_1.getCurrentLoad)(),
-            memoryInfo: yield (0, sysinfo_1.getMemoryInfo)(),
-        };
-        return currentCollection;
-    });
-}
-exports.systemStatsCollector = systemStatsCollector;
 
 
 /***/ }),
@@ -305,6 +274,70 @@ exports.upload = upload;
 
 /***/ }),
 
+/***/ 1131:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.spawnBackgroundProcess = void 0;
+const spawn = (__nccwpck_require__(2081).spawn);
+const fs = __nccwpck_require__(7147);
+const path = process.cwd() + "/background.js";
+const js_content = `
+const fs = require("fs");
+
+const background = () => {
+  const filePath = process.env.dataFilePath;
+  let rawData = fs.readFileSync(filePath, "utf8");
+  let parsedData = JSON.parse(rawData);
+
+  const date = new Date();
+  const newBackground = {
+    date: date.toLocaleDateString(),
+    time: date.toLocaleTimeString(),
+  };
+  parsedData.timeSeries.push(newBackground);
+
+  fs.writeFileSync(filePath, JSON.stringify(parsedData, null, 2), "utf8");
+};
+
+setInterval(background, 1000 * 60); // run once a minute
+
+
+`;
+function spawnBackgroundProcess(dataFilePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        fs.writeFileSync(path, js_content, "utf8");
+        const child = spawn("node", [path], {
+            detached: true,
+            stdio: "ignore",
+            env: Object.assign(Object.assign({}, process.env), { dataFilePath }),
+        });
+        const PID = child.pid;
+        console.log(`Background process started with pid ${child.pid}`);
+        child.unref();
+        return PID;
+    });
+}
+exports.spawnBackgroundProcess = spawnBackgroundProcess;
+// spawnBackgroundProcess()
+//   .then((pid) => console.log(pid))
+//   .catch((err) => console.log(err));
+// create a file called background.js in the current working directory
+
+
+/***/ }),
+
 /***/ 2842:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -349,75 +382,6 @@ function createJSONfile(fileLocation = getFileLocation()) {
     return fileLocation;
 }
 exports.createJSONfile = createJSONfile;
-
-
-/***/ }),
-
-/***/ 6343:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.statsCollectorAndWriter = void 0;
-const fs_1 = __importDefault(__nccwpck_require__(7147));
-const core = __importStar(__nccwpck_require__(2186));
-const statsCollector_1 = __nccwpck_require__(819);
-function statsCollectorAndWriter(fileLocation) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            let systemsStats = yield (0, statsCollector_1.systemStatsCollector)();
-            let currentTimestamp = new Date().toUTCString();
-            // read file and append new data
-            let fileContents = fs_1.default.readFileSync(fileLocation, "utf8");
-            let data = JSON.parse(fileContents);
-            data.timeSeries.push({ currentTimestamp, systemsStats });
-            // write file
-            fs_1.default.writeFileSync(fileLocation, JSON.stringify(data));
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                core.setFailed(error.message);
-            }
-        }
-    });
-}
-exports.statsCollectorAndWriter = statsCollectorAndWriter;
 
 
 /***/ }),
