@@ -12,4 +12,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: wechuli/actionsrunnersysinfo@main
+      - run: sleep 5m
       - run: ls $RUNNER_TEMP
