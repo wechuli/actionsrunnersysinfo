@@ -324,28 +324,28 @@ const fs = __nccwpck_require__(7147);
 const path = process.cwd() + "/background.js";
 const js_content = `
 const fs = require("fs");
-const si = require("systeminformation");
+// const si = require("systeminformation");
 
-async function getCurrentLoad() {
-  let data = await si.currentLoad();
-  let importantLoadInfo = {
-    currentLoad: data.currentLoad,
-    currentLoadUser: data.currentLoadUser,
-    currentLoadSystem: data.currentLoadSystem,
-  };
-  return importantLoadInfo;
-}
+// async function getCurrentLoad() {
+//   let data = await si.currentLoad();
+//   let importantLoadInfo = {
+//     currentLoad: data.currentLoad,
+//     currentLoadUser: data.currentLoadUser,
+//     currentLoadSystem: data.currentLoadSystem,
+//   };
+//   return importantLoadInfo;
+// }
 
-async function getMemoryInfo() {
-  let data = await si.mem();
-  return data;
-}
+// async function getMemoryInfo() {
+//   let data = await si.mem();
+//   return data;
+// }
 
-// disk utilization
-async function getDiskInfo() {
-  let data = await si.diskLayout();
-  return data;
-}
+// // disk utilization
+// async function getDiskInfo() {
+//   let data = await si.diskLayout();
+//   return data;
+// }
 
 async function background() {
   const filePath = process.env.dataFilePath;
@@ -354,18 +354,18 @@ async function background() {
 
   const date = new Date();
 
-  const currentLoad = await getCurrentLoad();
-  const memoryInfo = await getMemoryInfo();
-  const diskInfo = await getDiskInfo();
+  // const currentLoad = await getCurrentLoad();
+  // const memoryInfo = await getMemoryInfo();
+  // const diskInfo = await getDiskInfo();
   const timeStamp = date.toLocaleTimeString();
 
   const backgroundStats = {
     time: timeStamp,
-    stats: {
-      currentLoad,
-      memoryInfo,
-      diskInfo,
-    },
+    // stats: {
+    //   currentLoad,
+    //   memoryInfo,
+    //   diskInfo,
+    // },
   };
   parsedData.timeSeries.push(backgroundStats);
 
@@ -373,6 +373,7 @@ async function background() {
 }
 background();
 setInterval(background, 1000 * 60); // run once a minute
+
 `;
 function spawnBackgroundProcess(dataFilePath) {
     return __awaiter(this, void 0, void 0, function* () {
