@@ -119,6 +119,7 @@ const sysinfo_1 = __nccwpck_require__(7949);
 const fileOps_1 = __nccwpck_require__(8958);
 const backgroundstarter_1 = __nccwpck_require__(1131);
 const state_helper_1 = __nccwpck_require__(2246);
+const constants_1 = __nccwpck_require__(2842);
 function setup() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -140,7 +141,7 @@ function setup() {
             yield fs_1.default.promises.writeFile(fileLocation, JSON.stringify(currentCollection));
             const backgroundPID = yield (0, backgroundstarter_1.spawnBackgroundProcess)(fileLocation);
             // save background PID to state
-            core.saveState("backgroundPID", backgroundPID.toString());
+            core.saveState(constants_1.Constants.BACKGROUNDPROCESS, backgroundPID.toString());
         }
         catch (error) {
             if (error instanceof Error) {
@@ -255,12 +256,37 @@ exports.getNetworkStats = getNetworkStats;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.upload = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
+const core = __importStar(__nccwpck_require__(2186));
+const constants_1 = __nccwpck_require__(2842);
 const state_helper_1 = __nccwpck_require__(2246);
 function upload() {
     let fileLocation = (0, state_helper_1.getFileLocation)();
@@ -268,6 +294,9 @@ function upload() {
     // check contents of file
     let fileContents = fs_1.default.readFileSync(fileLocation, "utf8");
     console.log(`File contents: ${fileContents}`);
+    // get PID of background process
+    let backgroundPID = core.getState(constants_1.Constants.BACKGROUNDPROCESS);
+    console.log(`Background process PID: ${backgroundPID}`);
 }
 exports.upload = upload;
 
@@ -379,6 +408,7 @@ var Constants;
 (function (Constants) {
     Constants["RUNNER_TEMP"] = "RUNNER_TEMP";
     Constants["FILE_NAME"] = "sysinfo.json";
+    Constants["BACKGROUNDPROCESS"] = "backgroundPID";
 })(Constants || (exports.Constants = Constants = {}));
 
 
