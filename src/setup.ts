@@ -11,6 +11,7 @@ import { statsCollectorAndWriter } from "./utils/interval";
 import { createJSONfile, getFileLocation } from "./utils/fileOps";
 import { spawnBackgroundProcess } from "./utils/backgroundstarter";
 import { State } from "./utils/state-helper";
+import { Constants } from "./utils/constants";
 
 export async function setup(): Promise<void> {
   try {
@@ -39,7 +40,7 @@ export async function setup(): Promise<void> {
     const backgroundPID = await spawnBackgroundProcess(fileLocation);
 
     // save background PID to state
-    core.saveState("backgroundPID", backgroundPID.toString());
+    core.saveState(Constants.BACKGROUNDPROCESS, backgroundPID.toString());
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message);

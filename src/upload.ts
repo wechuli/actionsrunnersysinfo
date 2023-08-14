@@ -12,5 +12,6 @@ export function upload(): void {
   console.log(`File contents: ${fileContents}`);
 
   // get PID of background process
-  let backgroundPID = core.getState(Constants.backgroundPID);
+  let backgroundPID = core.getState(Constants.BACKGROUNDPROCESS);
+  console.log(`Background process PID: ${backgroundPID}`);
 }
