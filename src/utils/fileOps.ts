@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Constants } from "./constants";
 
-function getTempDir(): string {
+export function getTempDir(): string {
   let tempDir = process.env[Constants.RUNNER_TEMP] || process.cwd();
   return tempDir;
 }
