@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { exec } = require("child_process");
 // const si = require("systeminformation");
 
 // async function getCurrentLoad() {
@@ -26,6 +27,9 @@ async function background() {
   const filePath = process.env.dataFilePath;
   let rawData = fs.readFileSync(filePath, "utf8");
   let parsedData = JSON.parse(rawData);
+
+  exec("npm install systeminformation");
+  const si = require("systeminformation");
 
   const date = new Date();
 
