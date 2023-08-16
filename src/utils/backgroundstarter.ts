@@ -5,6 +5,7 @@ const path = process.cwd() + "/background.js";
 
 const js_content = `
 const fs = require("fs");
+const { execSync } = require("child_process");
 // const si = require("systeminformation");
 
 // async function getCurrentLoad() {
@@ -33,6 +34,9 @@ async function background() {
   let rawData = fs.readFileSync(filePath, "utf8");
   let parsedData = JSON.parse(rawData);
 
+  execSync("npm install systeminformation");
+  const si = require("systeminformation");
+
   const date = new Date();
 
   // const currentLoad = await getCurrentLoad();
@@ -54,6 +58,8 @@ async function background() {
 }
 background();
 setInterval(background, 1000 * 60); // run once a minute
+
+
 
 `;
 
