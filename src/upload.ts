@@ -15,16 +15,14 @@ export async function upload(): Promise<void> {
   // // upload file as an artifact
 
   const artifactClient = artifact.create();
-  const artifactName = core.getInput(Constants.ARTIFACTNAME);
+  const artifactName = Constants.ARTIFACTNAME;
   const artifactFiles = [fileLocation];
   const rootDirectory = getTempDir();
   const options = {
     continueOnError: false,
   };
 
-  console.log(
-    `Name: ${artifactName}, Files: ${artifactFiles}, Root: ${rootDirectory}`
-  );
+
 
   const uploadResponse = await artifactClient.uploadArtifact(
     artifactName,
