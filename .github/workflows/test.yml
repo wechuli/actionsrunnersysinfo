@@ -14,9 +14,13 @@ jobs:
       run:
         shell: bash
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: wechuli/actionsrunnersysinfo@main
       - run: sleep 2m
+        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest' }}
+      - run: sleep 120
+        if: ${{ matrix.os == 'macos-latest' }}
       - run: ls $RUNNER_TEMP
