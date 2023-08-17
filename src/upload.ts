@@ -22,6 +22,10 @@ export async function upload(): Promise<void> {
     continueOnError: false,
   };
 
+  console.log(
+    `Name: ${artifactName}, Files: ${artifactFiles}, Root: ${rootDirectory}`
+  );
+
   const uploadResponse = await artifactClient.uploadArtifact(
     artifactName,
     artifactFiles,
