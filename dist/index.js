@@ -298,10 +298,6 @@ const fileOps_1 = __nccwpck_require__(8958);
 function upload() {
     return __awaiter(this, void 0, void 0, function* () {
         let fileLocation = (0, state_helper_1.getFileLocation)();
-        // console.log(`File location: ${fileLocation}`);
-        // // check contents of file
-        // let fileContents = fs.readFileSync(fileLocation, "utf8");
-        // // upload file as an artifact
         const artifactClient = artifact.create();
         const artifactName = constants_1.Constants.ARTIFACTNAME;
         const artifactFiles = [fileLocation];
@@ -309,7 +305,9 @@ function upload() {
         const options = {
             continueOnError: false,
         };
-        const uploadResponse = yield artifactClient.uploadArtifact(artifactName, artifactFiles, rootDirectory, options);
+        const jobName = process.env.GITHUB_JOB;
+        const fullArtifactName = `${jobName}-${artifactName}`;
+        const uploadResponse = yield artifactClient.uploadArtifact(fullArtifactName, artifactFiles, rootDirectory, options);
         console.log(`Artifact ${uploadResponse.artifactName} was uploaded successfully`);
         // get PID of background process and kill it
         let backgroundPID = core.getState(constants_1.Constants.BACKGROUNDPROCESS);
@@ -12015,7 +12013,7 @@ function fsSize(drive, callback) {
             execSync('cat /proc/mounts 2>/dev/null').toString().split('\n').filter(line => {
               return line.startsWith('/');
             }).forEach((line) => {
-              osMounts[line.split(' ')[0]] = osMounts[line.split(' ')[0]] ?? false;
+              osMounts[line.split(' ')[0]] = osMounts[line.split(' ')[0]] || false;
               if (line.toLowerCase().indexOf('/snap/') === -1) {
                 osMounts[line.split(' ')[0]] = ((line.toLowerCase().indexOf('rw,') >= 0 || line.toLowerCase().indexOf(' rw ') >= 0));
               }
@@ -15427,60 +15425,70 @@ function mem(callback) {
       };
 
       if (_linux) {
-        fs.readFile('/proc/meminfo', function (error, stdout) {
-          if (!error) {
-            const lines = stdout.toString().split('\n');
-            result.total = parseInt(util.getValue(lines, 'memtotal'), 10);
-            result.total = result.total ? result.total * 1024 : os.totalmem();
-            result.free = parseInt(util.getValue(lines, 'memfree'), 10);
-            result.free = result.free ? result.free * 1024 : os.freemem();
-            result.used = result.total - result.free;
+        try {
+          fs.readFile('/proc/meminfo', function (error, stdout) {
+            if (!error) {
+              const lines = stdout.toString().split('\n');
+              result.total = parseInt(util.getValue(lines, 'memtotal'), 10);
+              result.total = result.total ? result.total * 1024 : os.totalmem();
+              result.free = parseInt(util.getValue(lines, 'memfree'), 10);
+              result.free = result.free ? result.free * 1024 : os.freemem();
+              result.used = result.total - result.free;
 
-            result.buffers = parseInt(util.getValue(lines, 'buffers'), 10);
-            result.buffers = result.buffers ? result.buffers * 1024 : 0;
-            result.cached = parseInt(util.getValue(lines, 'cached'), 10);
-            result.cached = result.cached ? result.cached * 1024 : 0;
-            result.slab = parseInt(util.getValue(lines, 'slab'), 10);
-            result.slab = result.slab ? result.slab * 1024 : 0;
-            result.buffcache = result.buffers + result.cached + result.slab;
+              result.buffers = parseInt(util.getValue(lines, 'buffers'), 10);
+              result.buffers = result.buffers ? result.buffers * 1024 : 0;
+              result.cached = parseInt(util.getValue(lines, 'cached'), 10);
+              result.cached = result.cached ? result.cached * 1024 : 0;
+              result.slab = parseInt(util.getValue(lines, 'slab'), 10);
+              result.slab = result.slab ? result.slab * 1024 : 0;
+              result.buffcache = result.buffers + result.cached + result.slab;
 
-            let available = parseInt(util.getValue(lines, 'memavailable'), 10);
-            result.available = available ? available * 1024 : result.free + result.buffcache;
-            result.active = result.total - result.available;
+              let available = parseInt(util.getValue(lines, 'memavailable'), 10);
+              result.available = available ? available * 1024 : result.free + result.buffcache;
+              result.active = result.total - result.available;
 
-            result.swaptotal = parseInt(util.getValue(lines, 'swaptotal'), 10);
-            result.swaptotal = result.swaptotal ? result.swaptotal * 1024 : 0;
-            result.swapfree = parseInt(util.getValue(lines, 'swapfree'), 10);
-            result.swapfree = result.swapfree ? result.swapfree * 1024 : 0;
-            result.swapused = result.swaptotal - result.swapfree;
-          }
+              result.swaptotal = parseInt(util.getValue(lines, 'swaptotal'), 10);
+              result.swaptotal = result.swaptotal ? result.swaptotal * 1024 : 0;
+              result.swapfree = parseInt(util.getValue(lines, 'swapfree'), 10);
+              result.swapfree = result.swapfree ? result.swapfree * 1024 : 0;
+              result.swapused = result.swaptotal - result.swapfree;
+            }
+            if (callback) { callback(result); }
+            resolve(result);
+          });
+        } catch (e) {
           if (callback) { callback(result); }
           resolve(result);
-        });
+        }
       }
       if (_freebsd || _openbsd || _netbsd) {
-        exec('/sbin/sysctl hw.realmem hw.physmem vm.stats.vm.v_page_count vm.stats.vm.v_wire_count vm.stats.vm.v_active_count vm.stats.vm.v_inactive_count vm.stats.vm.v_cache_count vm.stats.vm.v_free_count vm.stats.vm.v_page_size', function (error, stdout) {
-          if (!error) {
-            let lines = stdout.toString().split('\n');
-            const pagesize = parseInt(util.getValue(lines, 'vm.stats.vm.v_page_size'), 10);
-            const inactive = parseInt(util.getValue(lines, 'vm.stats.vm.v_inactive_count'), 10) * pagesize;
-            const cache = parseInt(util.getValue(lines, 'vm.stats.vm.v_cache_count'), 10) * pagesize;
+        try {
+          exec('/sbin/sysctl hw.realmem hw.physmem vm.stats.vm.v_page_count vm.stats.vm.v_wire_count vm.stats.vm.v_active_count vm.stats.vm.v_inactive_count vm.stats.vm.v_cache_count vm.stats.vm.v_free_count vm.stats.vm.v_page_size', function (error, stdout) {
+            if (!error) {
+              let lines = stdout.toString().split('\n');
+              const pagesize = parseInt(util.getValue(lines, 'vm.stats.vm.v_page_size'), 10);
+              const inactive = parseInt(util.getValue(lines, 'vm.stats.vm.v_inactive_count'), 10) * pagesize;
+              const cache = parseInt(util.getValue(lines, 'vm.stats.vm.v_cache_count'), 10) * pagesize;
 
-            result.total = parseInt(util.getValue(lines, 'hw.realmem'), 10);
-            if (isNaN(result.total)) { result.total = parseInt(util.getValue(lines, 'hw.physmem'), 10); }
-            result.free = parseInt(util.getValue(lines, 'vm.stats.vm.v_free_count'), 10) * pagesize;
-            result.buffcache = inactive + cache;
-            result.available = result.buffcache + result.free;
-            result.active = result.total - result.free - result.buffcache;
+              result.total = parseInt(util.getValue(lines, 'hw.realmem'), 10);
+              if (isNaN(result.total)) { result.total = parseInt(util.getValue(lines, 'hw.physmem'), 10); }
+              result.free = parseInt(util.getValue(lines, 'vm.stats.vm.v_free_count'), 10) * pagesize;
+              result.buffcache = inactive + cache;
+              result.available = result.buffcache + result.free;
+              result.active = result.total - result.free - result.buffcache;
 
-            result.swaptotal = 0;
-            result.swapfree = 0;
-            result.swapused = 0;
+              result.swaptotal = 0;
+              result.swapfree = 0;
+              result.swapused = 0;
 
-          }
+            }
+            if (callback) { callback(result); }
+            resolve(result);
+          });
+        } catch (e) {
           if (callback) { callback(result); }
           resolve(result);
-        });
+        }
       }
       if (_sunos) {
         if (callback) { callback(result); }
@@ -15494,31 +15502,36 @@ function mem(callback) {
         } catch (e) {
           util.noop();
         }
-        exec('vm_stat 2>/dev/null | grep "Pages active"', function (error, stdout) {
-          if (!error) {
-            let lines = stdout.toString().split('\n');
-
-            result.active = parseInt(lines[0].split(':')[1], 10) * pageSize;
-            result.buffcache = result.used - result.active;
-            result.available = result.free + result.buffcache;
-          }
-          exec('sysctl -n vm.swapusage 2>/dev/null', function (error, stdout) {
+        try {
+          exec('vm_stat 2>/dev/null | grep "Pages active"', function (error, stdout) {
             if (!error) {
               let lines = stdout.toString().split('\n');
-              if (lines.length > 0) {
-                let firstline = lines[0].replace(/,/g, '.').replace(/M/g, '');
-                let lineArray = firstline.trim().split('  ');
-                lineArray.forEach(line => {
-                  if (line.toLowerCase().indexOf('total') !== -1) { result.swaptotal = parseFloat(line.split('=')[1].trim()) * 1024 * 1024; }
-                  if (line.toLowerCase().indexOf('used') !== -1) { result.swapused = parseFloat(line.split('=')[1].trim()) * 1024 * 1024; }
-                  if (line.toLowerCase().indexOf('free') !== -1) { result.swapfree = parseFloat(line.split('=')[1].trim()) * 1024 * 1024; }
-                });
-              }
+
+              result.active = parseInt(lines[0].split(':')[1], 10) * pageSize;
+              result.buffcache = result.used - result.active;
+              result.available = result.free + result.buffcache;
             }
-            if (callback) { callback(result); }
-            resolve(result);
+            exec('sysctl -n vm.swapusage 2>/dev/null', function (error, stdout) {
+              if (!error) {
+                let lines = stdout.toString().split('\n');
+                if (lines.length > 0) {
+                  let firstline = lines[0].replace(/,/g, '.').replace(/M/g, '');
+                  let lineArray = firstline.trim().split('  ');
+                  lineArray.forEach(line => {
+                    if (line.toLowerCase().indexOf('total') !== -1) { result.swaptotal = parseFloat(line.split('=')[1].trim()) * 1024 * 1024; }
+                    if (line.toLowerCase().indexOf('used') !== -1) { result.swapused = parseFloat(line.split('=')[1].trim()) * 1024 * 1024; }
+                    if (line.toLowerCase().indexOf('free') !== -1) { result.swapfree = parseFloat(line.split('=')[1].trim()) * 1024 * 1024; }
+                  });
+                }
+              }
+              if (callback) { callback(result); }
+              resolve(result);
+            });
           });
-        });
+        } catch (e) {
+          if (callback) { callback(result); }
+          resolve(result);
+        }
       }
       if (_windows) {
         let swaptotal = 0;
@@ -20703,10 +20716,11 @@ function bios(callback) {
       }
       if (_windows) {
         try {
-          util.powerShell('Get-CimInstance Win32_bios | select Description,Version,Manufacturer,@{n="ReleaseDate";e={$_.ReleaseDate.ToString("yyyy-MM-dd")}},BuildNumber,SerialNumber | fl').then((stdout, error) => {
+          util.powerShell('Get-CimInstance Win32_bios | select Description,Version,Manufacturer,@{n="ReleaseDate";e={$_.ReleaseDate.ToString("yyyy-MM-dd")}},BuildNumber,SerialNumber,SMBIOSBIOSVersion | fl').then((stdout, error) => {
             if (!error) {
               let lines = stdout.toString().split('\r\n');
               const description = util.getValue(lines, 'description', ':');
+              const version = util.getValue(lines, 'SMBIOSBIOSVersion', ':');
               if (description.indexOf(' Version ') !== -1) {
                 // ... Phoenix ROM BIOS PLUS Version 1.10 A04
                 result.vendor = description.split(' Version ')[0].trim();
@@ -20717,7 +20731,7 @@ function bios(callback) {
                 result.version = description.split(' Ver: ')[1].trim();
               } else {
                 result.vendor = util.getValue(lines, 'manufacturer', ':');
-                result.version = util.getValue(lines, 'version', ':');
+                result.version = version || util.getValue(lines, 'version', ':');
               }
               result.releaseDate = util.getValue(lines, 'releasedate', ':');
               result.revision = util.getValue(lines, 'buildnumber', ':');
@@ -25812,7 +25826,7 @@ module.exports = require("zlib");
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"i8":"5.18.12"};
+module.exports = {"i8":"5.18.15"};
 
 /***/ })
 
