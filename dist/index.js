@@ -309,6 +309,7 @@ function upload() {
         const options = {
             continueOnError: false,
         };
+        console.log(`Name: ${artifactName}, Files: ${artifactFiles}, Root: ${rootDirectory}`);
         const uploadResponse = yield artifactClient.uploadArtifact(artifactName, artifactFiles, rootDirectory, options);
         console.log(`Artifact ${uploadResponse.artifactName} was uploaded successfully`);
         // get PID of background process and kill it
