@@ -7,13 +7,6 @@ import { getTempDir } from "./utils/fileOps";
 
 export async function upload(): Promise<void> {
   let fileLocation = getFileLocation();
-  // console.log(`File location: ${fileLocation}`);
-
-  // // check contents of file
-  // let fileContents = fs.readFileSync(fileLocation, "utf8");
-
-  // // upload file as an artifact
-
   const artifactClient = artifact.create();
   const artifactName = Constants.ARTIFACTNAME;
   const artifactFiles = [fileLocation];
@@ -22,10 +15,11 @@ export async function upload(): Promise<void> {
     continueOnError: false,
   };
 
-
+  const jobName = process.env.GITHUB_JOB;
+  const fullArtifactName = `${jobName}-${artifactName}`;
 
   const uploadResponse = await artifactClient.uploadArtifact(
-    artifactName,
+    fullArtifactName,
     artifactFiles,
     rootDirectory,
     options
