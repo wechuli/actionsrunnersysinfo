@@ -9,7 +9,13 @@ on:
 
 jobs:
   testaction:  
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: wechuli/actionsrunnersysinfo@main
       - run: sleep 2m
