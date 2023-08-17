@@ -7,7 +7,6 @@ import {
   getMemoryInfo,
   getNetworkInfo,
 } from "./sysinfo/sysinfo";
-import { statsCollectorAndWriter } from "./utils/interval";
 import { createJSONfile, getFileLocation } from "./utils/fileOps";
 import { spawnBackgroundProcess } from "./utils/backgroundstarter";
 import { State } from "./utils/state-helper";
