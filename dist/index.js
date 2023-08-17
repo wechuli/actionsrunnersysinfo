@@ -303,13 +303,12 @@ function upload() {
         // let fileContents = fs.readFileSync(fileLocation, "utf8");
         // // upload file as an artifact
         const artifactClient = artifact.create();
-        const artifactName = core.getInput(constants_1.Constants.ARTIFACTNAME);
+        const artifactName = constants_1.Constants.ARTIFACTNAME;
         const artifactFiles = [fileLocation];
         const rootDirectory = (0, fileOps_1.getTempDir)();
         const options = {
             continueOnError: false,
         };
-        console.log(`Name: ${artifactName}, Files: ${artifactFiles}, Root: ${rootDirectory}`);
         const uploadResponse = yield artifactClient.uploadArtifact(artifactName, artifactFiles, rootDirectory, options);
         console.log(`Artifact ${uploadResponse.artifactName} was uploaded successfully`);
         // get PID of background process and kill it
