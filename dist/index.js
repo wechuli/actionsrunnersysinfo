@@ -306,7 +306,8 @@ function upload() {
             continueOnError: false,
         };
         const jobName = process.env.GITHUB_JOB;
-        const fullArtifactName = `${jobName}-${artifactName}`;
+        const randomWord = Math.random().toString(36).substring(7); // add random letters in case job is part of a matrix
+        const fullArtifactName = `${jobName}-${artifactName}-${randomWord}`;
         const uploadResponse = yield artifactClient.uploadArtifact(fullArtifactName, artifactFiles, rootDirectory, options);
         console.log(`Artifact ${uploadResponse.artifactName} was uploaded successfully`);
         // get PID of background process and kill it
