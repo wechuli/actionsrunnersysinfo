@@ -37,7 +37,7 @@ async function background() {
   const currentLoad = await getCurrentLoad();
   const memoryInfo = await getMemoryInfo();
   const diskInfo = await getDiskInfo();
-  const timeStamp = date.toLocaleTimeString();
+  const timeStamp = date.toISOString();
 
   const backgroundStats = {
     time: timeStamp,
