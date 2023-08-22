@@ -8,7 +8,7 @@ on:
       - completed
 
 jobs:
-  testaction:  
+  testaction:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -24,3 +24,15 @@ jobs:
       - run: sleep 120
         if: ${{ matrix.os == 'macos-latest' }}
       - run: ls $RUNNER_TEMP
+  testbuildfailure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wechuli/actionsrunnersysinfo@main
+      - run: sleep 2m
+      - run: exit 1
+  testcanceledbuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: wechuli/actionsrunnersysinfo@main
+      - run: sleep 3m
