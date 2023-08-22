@@ -378,7 +378,7 @@ async function background() {
   const currentLoad = await getCurrentLoad();
   const memoryInfo = await getMemoryInfo();
   const diskInfo = await getDiskInfo();
-  const timeStamp = date.toLocaleTimeString();
+  const timeStamp = date.toISOString();
 
   const backgroundStats = {
     time: timeStamp,
@@ -394,6 +394,7 @@ async function background() {
 }
 background();
 setInterval(background, 1000 * 60); // run once a minute
+
 
 `;
 function spawnBackgroundProcess(dataFilePath) {
