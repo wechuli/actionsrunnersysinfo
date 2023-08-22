@@ -16,7 +16,8 @@ export async function upload(): Promise<void> {
   };
 
   const jobName = process.env.GITHUB_JOB;
-  const fullArtifactName = `${jobName}-${artifactName}`;
+  const randomWord = Math.random().toString(36).substring(7); // add random letters in case job is part of a matrix
+  const fullArtifactName = `${jobName}-${artifactName}-${randomWord}`;
 
   const uploadResponse = await artifactClient.uploadArtifact(
     fullArtifactName,
