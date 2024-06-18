@@ -1,6 +1,22 @@
 "use client";
 import Image from "next/image";
 import { Box, Button, Heading, Popover, Text, Dialog } from "@primer/react";
+import Highcarts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+
+const options = {
+  chart: {
+    type: "spline",
+  },
+  title: {
+    text: "My chart",
+  },
+  series: [
+    {
+      data: [1, 2, 1, 4, 3, 6],
+    },
+  ],
+};
 
 export default function Home() {
   return (
@@ -30,8 +46,9 @@ export default function Home() {
       </Box>
 
       <Button variant="danger">Danger</Button>
-
-
+      <div>
+        <HighchartsReact highcharts={Highcarts} options={options} />
+      </div>
     </main>
   );
 }

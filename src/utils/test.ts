@@ -31,5 +31,6 @@ async function runSomethingAsync() {
     console.log("running a task every minute");
   });
 }
+runSomethingAsync();
 
 runSomethingAsync();
